@@ -38,13 +38,12 @@ export default defineComponent({
     }
   },
   
-  mounted() {
-    this.loadMeetup();
-  },
-  
   watch: {
-    meetupId() {
-      this.loadMeetup();
+    meetupId: {
+      immediate: true,
+      handler() {
+        this.loadMeetup();
+      }
     }
   },
 
