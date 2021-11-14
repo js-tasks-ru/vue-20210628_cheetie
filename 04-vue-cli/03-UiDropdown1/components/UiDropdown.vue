@@ -1,21 +1,34 @@
 <template>
-  <div class="dropdown dropdown_opened">
-    <button type="button" class="dropdown__toggle dropdown__toggle_icon">
-      <ui-icon icon="tv" class="dropdown__icon" />
-      <span>Title</span>
+  <div class="dropdown" :class="classNames.opened" @click="toggle">
+    <button type="button" class="dropdown__toggle" :class="classNames.toggleIcon">
+      <ui-icon v-if="selectedOption?.icon" :icon="selectedOption.icon" class="dropdown__icon" />
+      <span>{{dropdownTitle}}</span>
     </button>
 
     <div class="dropdown__menu" role="listbox">
-      <button class="dropdown__item dropdown__item_icon" role="option" type="button">
-        <ui-icon icon="tv" class="dropdown__icon" />
-        Option 1
-      </button>
-      <button class="dropdown__item dropdown__item_icon" role="option" type="button">
-        <ui-icon icon="tv" class="dropdown__icon" />
-        Option 2
+      <button v-for="option in options" 
+        class="dropdown__item " 
+        :class="classNames.itemIcon"
+        :key="option.value" 
+        role="option" 
+        type="button"
+        @click.stop="select(option)"
+      >
+        <ui-icon v-if="option.icon" :icon="option.icon" class="dropdown__icon" />
+        {{option.text}}
       </button>
     </div>
   </div>
+  
+  <select value="" name="" id="" style="display: none">
+    <option v-for="option in options" 
+      :value="option.value" 
+      :selected="option.value === modelValue"
+      :key="option.value"
+    >
+      {{option.text}}
+    </option>
+  </select>
 </template>
 
 <script>
@@ -25,6 +38,68 @@ export default {
   name: 'UiDropdown',
 
   components: { UiIcon },
+  
+  props: {
+    options: {
+      type: Array,
+      required: true
+    },
+    title: {
+      type: String,
+      required: true
+    },
+    modelValue: String
+  },
+
+  data() {
+    return {
+      opened: false
+    }
+  },
+
+  computed: {
+    selectedOption() {
+      return this.options.find(option => option.value === this.modelValue);
+    },
+    classNames() {
+      return {
+        opened: this.opened && 'dropdown_opened',
+        toggleIcon: this.optionsHaveIcons && 'dropdown__toggle_icon',
+        itemIcon: this.optionsHaveIcons && 'dropdown__item_icon'
+      }
+    },
+    optionsHaveIcons() {
+      return this.options.some(option => option.icon);
+    },
+    dropdownTitle() {
+      return this.selectedOption?.text || this.title;
+    },
+  },
+
+  methods: {
+    toggle() {
+      this.opened = !this.opened;
+    },
+    select({ value }) {
+      this.$emit('update:modelValue', value);
+      this.opened = false;
+    },
+    closeOut(e) {
+      // есть способ более точно определить, что клик не на элементе?
+      if (!e.target.closest('.dropdown')) {
+        this.opened = false;
+      }
+    },
+  },
+
+  mounted() {
+    document.addEventListener('click', this.closeOut);
+  },
+
+  beforeUnmount() {
+    document.removeEventListener('click', this.closeOut);
+  }
+  
 };
 </script>
 
