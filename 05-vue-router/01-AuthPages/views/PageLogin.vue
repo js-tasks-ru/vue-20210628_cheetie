@@ -39,7 +39,8 @@ export default {
 
   methods: {
     handleSubmit() {
-      this.$router.push({ name: 'index' });
+      const query = this.$route.query;
+      this.$router.push(query?.from || { name: 'index' });
     },
   },
 };
