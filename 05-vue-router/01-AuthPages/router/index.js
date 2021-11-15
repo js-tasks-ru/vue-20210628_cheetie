@@ -6,17 +6,17 @@ export const router = createRouter({
     {
       path: '/',
       name: 'index',
-      component: () => import('./../views/PageIndex')
+      component: () => import('../views/PageIndex')
     }, 
     {
       path: '/login',
       name: 'login',
-      component: () => import('./../views/PageLogin')
+      component: () => import('../views/PageLogin')
     }, 
     {
       path: '/register',
       name: 'register',
-      component: () => import('./../views/PageRegister')
+      component: () => import('../views/PageRegister')
     }, 
   ],
 });
