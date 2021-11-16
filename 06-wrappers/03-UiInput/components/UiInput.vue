@@ -1,13 +1,32 @@
 <template>
-  <div class="input-group input-group_icon input-group_icon-left input-group_icon-right">
-    <div class="input-group__icon">
-      <img class="icon" alt="icon" />
+  <div class="input-group" :class="inputGroupClassNames">
+    <div v-if="leftIcon" class="input-group__icon">
+      <slot name="left-icon"/>
     </div>
 
-    <input ref="input" class="form-control form-control_rounded form-control_sm" />
+    <!-- Так - не работает:
 
-    <div class="input-group__icon">
-      <img class="icon" alt="icon" />
+    <component :is="tag" 
+      :type="type" 
+      ref="input" 
+      v-bind="$attrs"
+      v-model="currentValue" 
+      class="form-control" 
+      :class="inputClassNames" 
+    />
+     -->
+
+    <component :is="tag" 
+      :type="type" 
+      ref="input" 
+      v-bind="$attrs"
+      :value="modelValue" 
+      @input="$emit('update:modelValue', $event.target.value)"
+      class="form-control" :class="inputClassNames" 
+    />
+
+    <div v-if="rightIcon" class="input-group__icon">
+      <slot name="right-icon"/>
     </div>
   </div>
 </template>
@@ -15,6 +34,68 @@
 <script>
 export default {
   name: 'UiInput',
+
+  // inheritAttrs: false,
+  
+  props: {
+    'small': { type: Boolean },
+    'rounded': { type: Boolean },
+    'multiline': { type: Boolean },
+    'modelValue': { type: String },
+  },
+  
+  emits: ['update:modelValue'],
+  
+  data() {
+    return {
+      leftIcon: null,
+      rightIcon: null,
+    }
+  },
+  
+  computed: {
+    tag() {
+      return this.multiline ? 'textarea' : 'input';
+    },
+    type() {
+      if (!this.multiline) {
+        return 'text';
+      }
+    },
+    inputClassNames() {
+      return {
+        'form-control_rounded': this.rounded,
+        'form-control_sm': this.small,
+      }
+    },
+    inputGroupClassNames() {
+      return {
+        'input-group_icon-left': this.leftIcon,
+        'input-group_icon-right': this.rightIcon,
+        'input-group_icon': this.leftIcon || this.rightIcon,
+      }
+    },
+    currentValue: {
+      // не работает
+      get() {
+        return this.modelValue;
+      },
+      set(value) {
+        this.$emit('update:modelValue', value);
+      }
+    }
+  },
+  
+  mounted() {
+    this.leftIcon = Boolean(this.$slots['left-icon']);
+    this.rightIcon = Boolean(this.$slots['right-icon']);
+  },
+
+  methods: {
+    focus() {
+      this.$refs.input.focus();
+    }
+  }
 };
 </script>
 
