@@ -4,24 +4,12 @@
       <slot name="left-icon"/>
     </div>
 
-    <!-- Так - не работает:
-
-    <component :is="tag" 
-      :type="type" 
-      ref="input" 
-      v-bind="$attrs"
-      v-model="currentValue" 
-      class="form-control" 
-      :class="inputClassNames" 
-    />
-     -->
-
     <component :is="tag" 
       :type="type" 
       ref="input" 
       v-bind="$attrs"
       :value="modelValue" 
-      @input="$emit('update:modelValue', $event.target.value)"
+      @[eventName]="$emit('update:modelValue', $event.target.value)"
       class="form-control" :class="inputClassNames" 
     />
 
@@ -35,13 +23,16 @@
 export default {
   name: 'UiInput',
 
-  // inheritAttrs: false,
+  inheritAttrs: false,
   
   props: {
-    'small': { type: Boolean },
-    'rounded': { type: Boolean },
-    'multiline': { type: Boolean },
-    'modelValue': { type: String },
+    small: { type: Boolean },
+    rounded: { type: Boolean },
+    multiline: { type: Boolean },
+    modelValue: { type: String },
+    modelModifiers: {
+      default: () => ({})
+    },
   },
   
   emits: ['update:modelValue'],
@@ -75,18 +66,12 @@ export default {
         'input-group_icon': this.leftIcon || this.rightIcon,
       }
     },
-    currentValue: {
-      // не работает
-      get() {
-        return this.modelValue;
-      },
-      set(value) {
-        this.$emit('update:modelValue', value);
-      }
-    }
+    eventName() {
+      return this.modelModifiers.lazy ? 'change' : 'input';
+    },
   },
   
-  mounted() {
+  updated() {
     this.leftIcon = Boolean(this.$slots['left-icon']);
     this.rightIcon = Boolean(this.$slots['right-icon']);
   },
@@ -94,7 +79,7 @@ export default {
   methods: {
     focus() {
       this.$refs.input.focus();
-    }
+    },
   }
 };
 </script>
