@@ -1,14 +1,65 @@
 <template>
   <label class="checkbox">
-    <input type="checkbox" class="checkbox__input" />
+    <input type="checkbox" 
+      :value="modelValue" 
+      :checked="checked" 
+      @change="checkValue" 
+      class="checkbox__input" 
+    />
     <span class="checkbox__box"></span>
-    Label Text
+      <slot/>
   </label>
 </template>
 
 <script>
 export default {
   name: 'UiCheckbox',
+  
+  props: {
+    modelValue: [Boolean, Array],
+    value: {}
+  },
+  
+  emits: ['update:modelValue'],
+  
+  data() {
+    return {
+      checkedValue: null,
+      checked: null
+    }
+  },
+
+  computed: {
+    arrayMode() {
+      return Array.isArray(this.modelValue);
+    },
+  },
+
+  methods: {
+    checkValue(e) {
+      this.checkedValue = this.arrayMode
+        ? e.target.checked
+          ? this.checkedValue.concat(this.value)
+          : this.checkedValue.filter(value => this.value !== value)
+        : e.target.checked;
+      this.$emit('update:modelValue', this.checkedValue);
+    }
+  },
+  
+  watch: {
+    modelValue: {
+      immediate: true,
+      deep: true,
+      handler(newValue) {
+        if (this.arrayMode) {
+          this.checkedValue = [...newValue]; 
+          this.checked = this.checkedValue.find(value => this.value === value);
+        } else {
+          this.checkedValue = this.checked = newValue;
+        }
+      }
+    }
+  },
 };
 </script>
 
