@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown" :class="{ 'dropdown_opened': opened }" @click="toggle">
+  <div class="dropdown" ref="dropdown" :class="{ 'dropdown_opened': opened }" @click="toggle">
     <button type="button" class="dropdown__toggle" :class="{ 'dropdown__toggle_icon': optionsHaveIcons }">
       <ui-icon v-if="selectedOption?.icon" :icon="selectedOption.icon" class="dropdown__icon" />
       <span>{{ dropdownTitle }}</span>
@@ -80,7 +80,8 @@ export default {
       this.opened = false;
     },
     closeOut(e) {
-      if (!this.$el.contains(e.target)) {
+      // this.$el не указывает на узел компонента 
+      if (!this.$refs.dropdown.contains(e.target)) {
         this.opened = false;
       }
     },
