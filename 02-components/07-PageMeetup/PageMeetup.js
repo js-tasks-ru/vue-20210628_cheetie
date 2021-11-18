@@ -24,6 +24,7 @@ export default defineComponent({
     return {
       meetup: null,
       error: null,
+      loading: false
     }
   }, 
   
@@ -31,19 +32,22 @@ export default defineComponent({
     loadMeetup() {
       this.meetup = null;
       this.error = null;
+      this.loading = true;
       
       fetchMeetupById(this.meetupId)
         .then(meetup => this.meetup = meetup)
-        .catch(error => this.error = error);
+        .catch(error => this.error = error)
+        .then(() => this.loading = false);
     }
   },
   
+  mounted() {
+    this.loadMeetup();
+  },
+  
   watch: {
-    meetupId: {
-      immediate: true,
-      handler() {
-        this.loadMeetup();
-      }
+    meetupId() {
+      this.loadMeetup();
     }
   },
 
@@ -51,12 +55,12 @@ export default defineComponent({
     <div class="page-meetup">
       <meetup-view v-if="meetup" :meetup="meetup"/>
 
-      <ui-container v-else-if="error">
-        <ui-alert>{{ error.message }}</ui-alert>
+      <ui-container v-else-if="loading">
+        <ui-alert>Загрузка...</ui-alert>
       </ui-container>
 
-      <ui-container v-else>
-        <ui-alert>Загрузка...</ui-alert>
+      <ui-container v-else-if="error">
+        <ui-alert>{{ error.message }}</ui-alert>
       </ui-container>
     </div>`,
 });
