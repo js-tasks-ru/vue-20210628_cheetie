@@ -1,11 +1,19 @@
 <template>
-  <component :is="tag" :type="type" class="button" :class="buttonClassNames">
+  <component :is="tag" 
+    :type="type" 
+    class="button" 
+    :class="[buttonType, { 'button_block': block }]"
+  >
     <slot/>
   </component>
 </template>
 
 <script>
-const types = ['primary', 'secondary', 'danger'];
+const types = {
+  primary: 'button_primary',
+  secondary: 'button_secondary',
+  danger: 'button_danger',
+};
 
 export default {
   name: 'UiButton',
@@ -18,7 +26,7 @@ export default {
     variant: {
       type: String,
       default: 'secondary',
-      validator: (value) => types.includes(value)
+      validator: (value) => Object.keys(types).includes(value)
     },
     block: {
       type: Boolean,
@@ -27,11 +35,8 @@ export default {
   },
 
   computed: {
-    buttonClassNames() {
-      return [
-        `button_${this.variant}`, {
-        'button_block': this.block
-      }];
+    buttonType() {
+      return types[this.variant];
     },
     type() {
       if (this.tag === 'button') {

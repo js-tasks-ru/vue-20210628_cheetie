@@ -1,7 +1,7 @@
 <template>
-  <div class="toast" :class="typeClass">
-    <ui-icon class="toast__icon" :icon="icon" />
-    <span>{{message}}</span>
+  <div class="toast" :class="typeObj.className">
+    <ui-icon class="toast__icon" :icon="typeObj.icon" />
+    <span>{{ message }}</span>
     <span v-if="closeBtn" @click="close" class="toast__close-button">
       &times;
     </span>
@@ -11,11 +11,23 @@
 <script>
 import UiIcon from './UiIcon';
 
-const icons = {
-  success: 'check-circle',
-  info: 'check-circle',
-  warning: 'alert-circle',
-  error: 'alert-circle'
+const types = {
+  success: {
+    icon: 'check-circle',
+    className: 'toast_success'
+  },
+  info: {
+    icon: 'check-circle',
+    className: 'toast_info'
+  },
+  warning: {
+    icon: 'alert-circle',
+    className: 'toast_warning'
+  },
+  error: {
+    icon: 'alert-circle',
+    className: 'toast_error'
+  }
 }
 
 export default {
@@ -26,7 +38,8 @@ export default {
   props: {
     type: {
       type: String,
-      required: true
+      required: true,
+      validator: (value) => Object.keys(types).includes(value)
     },
     message: {
       type: String,
@@ -38,13 +51,12 @@ export default {
     }
   },
 
+  emits: ['close'],
+
   computed: {
-    typeClass() {
-      return `toast_${this.type}`
+    typeObj() {
+      return types[this.type];
     },
-    icon() {
-      return icons[this.type];
-    }
   },
 
   methods: {

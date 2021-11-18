@@ -8,10 +8,11 @@ export default defineComponent({
       default: 0
     }
   },
+  emits: ['update:count'],
   methods: {
     updateCount() {
-      this.$emit('update:count', this.count + 1)
+      this.$emit('update:count', this.count + 1);
     }
   },
-  template: `<button type="button" @click="updateCount">{{count}}</button>`,
+  template: `<button type="button" @click="updateCount">{{ count }}</button>`,
 });

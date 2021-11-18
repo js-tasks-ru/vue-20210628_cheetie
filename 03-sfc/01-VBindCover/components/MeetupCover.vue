@@ -1,6 +1,6 @@
 <template>
   <div class="meetup-cover">
-    <h1 class="meetup-cover__title">{{title}}</h1>
+    <h1 class="meetup-cover__title">{{ title }}</h1>
   </div>
 </template>
 

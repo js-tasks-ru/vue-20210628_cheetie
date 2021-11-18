@@ -1,21 +1,21 @@
 <template>
-  <div class="dropdown" :class="classNames.opened" @click="toggle">
-    <button type="button" class="dropdown__toggle" :class="classNames.toggleIcon">
+  <div class="dropdown" :class="{ 'dropdown_opened': opened }" @click="toggle">
+    <button type="button" class="dropdown__toggle" :class="{ 'dropdown__toggle_icon': optionsHaveIcons }">
       <ui-icon v-if="selectedOption?.icon" :icon="selectedOption.icon" class="dropdown__icon" />
-      <span>{{dropdownTitle}}</span>
+      <span>{{ dropdownTitle }}</span>
     </button>
 
     <div class="dropdown__menu" role="listbox">
       <button v-for="option in options" 
         class="dropdown__item " 
-        :class="classNames.itemIcon"
+        :class="{ 'dropdown__item_icon': optionsHaveIcons }"
         :key="option.value" 
         role="option" 
         type="button"
         @click.stop="select(option)"
       >
         <ui-icon v-if="option.icon" :icon="option.icon" class="dropdown__icon" />
-        {{option.text}}
+        {{ option.text }}
       </button>
     </div>
   </div>
@@ -26,7 +26,7 @@
       :selected="option.value === modelValue"
       :key="option.value"
     >
-      {{option.text}}
+      {{ option.text }}
     </option>
   </select>
 </template>
@@ -51,6 +51,8 @@ export default {
     modelValue: String
   },
 
+  emits: ['update:modelValue'],
+
   data() {
     return {
       opened: false
@@ -60,13 +62,6 @@ export default {
   computed: {
     selectedOption() {
       return this.options.find(option => option.value === this.modelValue);
-    },
-    classNames() {
-      return {
-        opened: this.opened && 'dropdown_opened',
-        toggleIcon: this.optionsHaveIcons && 'dropdown__toggle_icon',
-        itemIcon: this.optionsHaveIcons && 'dropdown__item_icon'
-      }
     },
     optionsHaveIcons() {
       return this.options.some(option => option.icon);
@@ -85,8 +80,7 @@ export default {
       this.opened = false;
     },
     closeOut(e) {
-      // есть способ более точно определить, что клик не на элементе?
-      if (!e.target.closest('.dropdown')) {
+      if (!this.$el.contains(e.target)) {
         this.opened = false;
       }
     },
