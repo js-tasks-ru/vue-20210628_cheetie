@@ -5,7 +5,7 @@
       <span>{{ dropdownTitle }}</span>
     </button>
 
-    <div class="dropdown__menu" role="listbox">
+    <div v-show="opened" class="dropdown__menu" role="listbox">
       <button v-for="option in options" 
         class="dropdown__item " 
         :class="{ 'dropdown__item_icon': optionsHaveIcons }"
@@ -20,7 +20,7 @@
     </div>
   </div>
   
-  <select value="" name="" id="" style="display: none">
+  <select value="" @change="handleNativeSelect" style="display: none">
     <option v-for="option in options" 
       :value="option.value" 
       :selected="option.value === modelValue"
@@ -84,6 +84,9 @@ export default {
       if (!this.$refs.dropdown.contains(e.target)) {
         this.opened = false;
       }
+    },
+    handleNativeSelect(e) {
+      this.select(this.options.find(option => option.value === e.target.value));
     },
   },
 
