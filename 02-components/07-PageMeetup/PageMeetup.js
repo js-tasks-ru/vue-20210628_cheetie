@@ -60,7 +60,7 @@ export default defineComponent({
       </ui-container>
 
       <ui-container v-else-if="error">
-        <ui-alert>{{error.message}}</ui-alert>
+        <ui-alert>{{ error.message }}</ui-alert>
       </ui-container>
     </div>`,
 });
