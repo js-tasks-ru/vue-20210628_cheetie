@@ -1,5 +1,4 @@
 import { defineComponent } from './vendor/vue.esm-browser.js';
-import { formatAsLocaleDateString, formatAsISODateString } from './utils/date-formats.js';
 
 export default defineComponent({
   name: 'MeetupInfo',
@@ -18,9 +17,17 @@ export default defineComponent({
     },
   },
   
-  methods: {
-    formatAsLocaleDateString,
-    formatAsISODateString,
+  computed: {
+    localeDate() {
+      return new Date(this.date).toLocaleDateString(navigator.language, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    },
+    ISODate() {
+      return new Date(this.date).toISOString().split('T')[0];
+    },
   },
 
   template: `
@@ -35,9 +42,7 @@ export default defineComponent({
       </li>
       <li>
         <img class="icon meetup-info__icon" alt="icon" src="/assets/icons/icon-cal-lg.svg" />
-        <time :datetime="formatAsISODateString(date)">
-        {{ formatAsLocaleDateString(date) }}
-        </time>
+        <time :datetime="ISODate">{{ localeDate }}</time>
       </li>
     </ul>`,
 });

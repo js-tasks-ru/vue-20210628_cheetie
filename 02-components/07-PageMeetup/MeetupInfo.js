@@ -19,8 +19,15 @@ export default defineComponent({
   
   computed: {
     localeDate() {
-      return new Date(this.date).toLocaleDateString(navigator.language);
-    }
+      return new Date(this.date).toLocaleDateString(navigator.language, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    },
+    ISODate() {
+      return new Date(this.date).toISOString().split('T')[0];
+    },
   },
 
   template: `
@@ -35,7 +42,7 @@ export default defineComponent({
       </li>
       <li>
         <img class="icon meetup-info__icon" alt="icon" src="/assets/icons/icon-cal-lg.svg" />
-        <time datetime="2020-01-01">{{ localeDate }}</time>
+        <time :datetime="ISODate">{{ localeDate }}</time>
       </li>
     </ul>`,
 });
