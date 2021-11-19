@@ -1,5 +1,12 @@
 <template>
-  <div class="input-group" :class="inputGroupClassNames">
+  <div 
+    class="input-group" 
+    :class="{
+      'input-group_icon-left': leftIcon,
+      'input-group_icon-right': rightIcon,
+      'input-group_icon': leftIcon || rightIcon
+    }"
+  >
     <div v-if="leftIcon" class="input-group__icon">
       <slot name="left-icon"/>
     </div>
@@ -10,7 +17,11 @@
       v-bind="$attrs"
       :value="modelValue" 
       @[eventName]="$emit('update:modelValue', $event.target.value)"
-      class="form-control" :class="inputClassNames" 
+      class="form-control" 
+      :class="{
+        'form-control_rounded': rounded,
+        'form-control_sm': small
+      }" 
     />
 
     <div v-if="rightIcon" class="input-group__icon">
@@ -53,32 +64,26 @@ export default {
         return 'text';
       }
     },
-    inputClassNames() {
-      return {
-        'form-control_rounded': this.rounded,
-        'form-control_sm': this.small,
-      }
-    },
-    inputGroupClassNames() {
-      return {
-        'input-group_icon-left': this.leftIcon,
-        'input-group_icon-right': this.rightIcon,
-        'input-group_icon': this.leftIcon || this.rightIcon,
-      }
-    },
     eventName() {
       return this.modelModifiers.lazy ? 'change' : 'input';
     },
   },
   
+  mounted() {
+    this.setIcons();
+  },
+  
   updated() {
-    this.leftIcon = Boolean(this.$slots['left-icon']);
-    this.rightIcon = Boolean(this.$slots['right-icon']);
+    this.setIcons();
   },
 
   methods: {
     focus() {
       this.$refs.input.focus();
+    },
+    setIcons() {
+      this.leftIcon = Boolean(this.$slots['left-icon']);
+      this.rightIcon = Boolean(this.$slots['right-icon']);
     },
   }
 };
