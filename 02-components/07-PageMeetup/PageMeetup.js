@@ -37,17 +37,16 @@ export default defineComponent({
       fetchMeetupById(this.meetupId)
         .then(meetup => this.meetup = meetup)
         .catch(error => this.error = error)
-        .then(() => this.loading = false);
+        .finally(() => this.loading = false);
     }
   },
   
-  mounted() {
-    this.loadMeetup();
-  },
-  
   watch: {
-    meetupId() {
-      this.loadMeetup();
+    meetupId: {
+      immediate: true,
+      handler() {
+        this.loadMeetup();
+      }
     }
   },
 
