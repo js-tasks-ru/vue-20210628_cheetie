@@ -1,19 +1,21 @@
 <template>
   <label class="checkbox">
-    <input type="checkbox" 
-      :value="modelValue" 
-      :checked="checked" 
-      @change="checkValue" 
+    <input type="checkbox"
+      :value="value" 
+      v-bind="$attrs" 
+      v-model="currentValue" 
       class="checkbox__input" 
     />
     <span class="checkbox__box"></span>
-      <slot/>
+    <slot/>
   </label>
 </template>
 
 <script>
 export default {
   name: 'UiCheckbox',
+
+  inheritAttrs: false,
   
   props: {
     modelValue: [Boolean, Array],
@@ -21,44 +23,16 @@ export default {
   },
   
   emits: ['update:modelValue'],
-  
-  data() {
-    return {
-      checkedValue: null,
-      checked: null
-    }
-  },
 
   computed: {
-    arrayMode() {
-      return Array.isArray(this.modelValue);
-    },
-  },
-
-  methods: {
-    checkValue(e) {
-      this.checkedValue = this.arrayMode
-        ? e.target.checked
-          ? this.checkedValue.concat(this.value)
-          : this.checkedValue.filter(value => this.value !== value)
-        : e.target.checked;
-      this.$emit('update:modelValue', this.checkedValue);
-    }
-  },
-  
-  watch: {
-    modelValue: {
-      immediate: true,
-      deep: true,
-      handler(newValue) {
-        if (this.arrayMode) {
-          this.checkedValue = [...newValue]; 
-          this.checked = this.checkedValue.find(value => this.value === value);
-        } else {
-          this.checkedValue = this.checked = newValue;
-        }
+    currentValue: {
+      get() {
+        return this.modelValue;
+      },
+      set(value) {
+        this.$emit('update:modelValue', value);
       }
-    }
+    },
   },
 };
 </script>
