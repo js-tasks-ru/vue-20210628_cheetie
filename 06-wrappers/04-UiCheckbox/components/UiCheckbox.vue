@@ -1,7 +1,6 @@
 <template>
   <label class="checkbox">
     <input type="checkbox"
-      :value="value" 
       v-bind="$attrs" 
       v-model="currentValue" 
       class="checkbox__input" 
@@ -19,7 +18,6 @@ export default {
   
   props: {
     modelValue: [Boolean, Array],
-    value: {}
   },
   
   emits: ['update:modelValue'],
