@@ -94,6 +94,7 @@ export default {
     reset() {
       this.image = null;
       this.$refs.input.value = '';
+      // URL.revokeObjectURL(this.image);
     },
     upload(payload) {
       this.$emit('upload', payload);
@@ -111,6 +112,10 @@ export default {
   created() {
     this.image = this.preview;
   },
+
+  beforeUnmount() {
+    this.reset();
+  }
   
 };
 </script>
