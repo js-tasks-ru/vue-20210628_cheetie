@@ -2,12 +2,12 @@
   <div 
     class="input-group" 
     :class="{
-      'input-group_icon-left': leftIcon,
-      'input-group_icon-right': rightIcon,
-      'input-group_icon': leftIcon || rightIcon
+      'input-group_icon':  $slots['left-icon'] || $slots['right-icon'],
+      'input-group_icon-left': $slots['left-icon'],
+      'input-group_icon-right': $slots['right-icon'],
     }"
   >
-    <div v-if="leftIcon" class="input-group__icon">
+    <div v-if=" $slots['left-icon']" class="input-group__icon">
       <slot name="left-icon"/>
     </div>
 
@@ -24,7 +24,7 @@
       }" 
     />
 
-    <div v-if="rightIcon" class="input-group__icon">
+    <div v-if="$slots['right-icon']" class="input-group__icon">
       <slot name="right-icon"/>
     </div>
   </div>
@@ -68,22 +68,10 @@ export default {
       return this.modelModifiers.lazy ? 'change' : 'input';
     },
   },
-  
-  mounted() {
-    this.setIcons();
-  },
-  
-  updated() {
-    this.setIcons();
-  },
 
   methods: {
     focus() {
       this.$refs.input.focus();
-    },
-    setIcons() {
-      this.leftIcon = Boolean(this.$slots['left-icon']);
-      this.rightIcon = Boolean(this.$slots['right-icon']);
     },
   }
 };
