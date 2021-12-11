@@ -1,38 +1,54 @@
 <template>
   <fieldset class="agenda-item-form">
-    <button type="button" class="agenda-item-form__remove-button">
+    <button type="button" class="agenda-item-form__remove-button" @click="$emit('remove')">
       <ui-icon icon="trash" />
     </button>
 
     <ui-form-group>
-      <ui-dropdown title="Тип" :options="$options.agendaItemTypeOptions" name="type" />
+      <ui-dropdown title="Тип" :options="$options.agendaItemTypeOptions" name="type" v-model="localAgendaItem.type" />
     </ui-form-group>
 
     <div class="agenda-item-form__row">
       <div class="agenda-item-form__col">
         <ui-form-group label="Начало">
-          <ui-input type="time" placeholder="00:00" name="startsAt" />
+          <ui-input type="time" placeholder="00:00" name="startsAt" v-model="localAgendaItem.startsAt" @change="setEnd"/>
         </ui-form-group>
       </div>
       <div class="agenda-item-form__col">
         <ui-form-group label="Окончание">
-          <ui-input type="time" placeholder="00:00" name="endsAt" />
+          <ui-input type="time" placeholder="00:00" name="endsAt" v-model="localAgendaItem.endsAt" @change="calcDuration"/>
         </ui-form-group>
       </div>
     </div>
-
-    <ui-form-group label="Тема">
-      <ui-input name="title" />
+    
+    <template v-if="localAgendaItem.type === 'talk'">
+      <ui-form-group label="Тема">
+        <ui-input name="title" v-model="localAgendaItem.title" />
+      </ui-form-group>
+      <ui-form-group label="Докладчик">
+        <ui-input name="speaker" v-model="localAgendaItem.speaker" />
+      </ui-form-group>
+      <ui-form-group label="Описание">
+        <ui-input multiline name="description" v-model="localAgendaItem.description" />
+      </ui-form-group>
+      <ui-form-group label="Язык">
+        <ui-dropdown title="Язык" :options="$options.talkLanguageOptions" name="language" v-model="localAgendaItem.language" />
+      </ui-form-group>
+    </template>
+    
+    <template v-else-if="localAgendaItem.type === 'other'">
+      <ui-form-group label="Заголовок">
+        <ui-input name="title" v-model="localAgendaItem.title" />
+      </ui-form-group>
+      <ui-form-group label="Описание">
+        <ui-input multiline name="description" v-model="localAgendaItem.description" />
+      </ui-form-group>
+    </template>
+    
+    <ui-form-group v-else label="Нестандартный текст (необязательно)">
+      <ui-input name="title" v-model="localAgendaItem.title" />
     </ui-form-group>
-    <ui-form-group label="Докладчик">
-      <ui-input name="speaker" />
-    </ui-form-group>
-    <ui-form-group label="Описание">
-      <ui-input multiline name="description" />
-    </ui-form-group>
-    <ui-form-group label="Язык">
-      <ui-dropdown title="Язык" :options="$options.talkLanguageOptions" name="language" />
-    </ui-form-group>
+    
   </fieldset>
 </template>
 
@@ -76,6 +92,24 @@ const talkLanguageOptions = [
   { value: 'EN', text: 'EN' },
 ];
 
+
+/* utils */
+
+const getMinutesCount = function(timeStr) {
+  const [ hours, minutes ] = timeStr.split(':').map(Number);
+  return hours * 60 + minutes;
+};
+
+const getTimeStr = function(minutesCount) {
+  const minutes = minutesCount % 60;
+  const hours = ((minutesCount - minutes) / 60) % 24;
+
+  return [ hours, minutes ].map(n => `0${n}`.slice(-2)).join(':');
+};
+
+/* --- */
+
+
 export default {
   name: 'MeetupAgendaItemForm',
 
@@ -89,6 +123,43 @@ export default {
       type: Object,
       required: true,
     },
+  },
+  
+  emits: [ 'update:agenda-item', 'remove' ],
+  
+  data() {
+    return {
+      localAgendaItem: { ...this.agendaItem },
+      duration: 0
+    }
+  },
+  
+  watch: {
+    // agendaItem: {
+    //   immediate: true,
+    //   handler(value) {
+    //     this.localAgendaItem = { ...value }
+    //   },
+    // },
+    localAgendaItem: {
+      deep: true,
+      handler(value) {
+        this.$emit('update:agenda-item', { ...value });
+      },
+    },
+  },
+  
+  methods: {
+    calcDuration() {
+      const startsAt = getMinutesCount(this.localAgendaItem.startsAt);
+      const endsAt = getMinutesCount(this.localAgendaItem.endsAt);
+
+      this.duration = (endsAt + 1440) - startsAt;
+    },
+    setEnd() {
+      const endsAt = getMinutesCount(this.localAgendaItem.startsAt) + this.duration;
+      this.localAgendaItem.endsAt = getTimeStr(endsAt);
+    }
   },
 };
 </script>
