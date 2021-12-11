@@ -1,5 +1,5 @@
 <template>
-  <form class="meetup-form" @reset.prevent="reset" @submit.prevent="submit">
+  <form class="meetup-form" @submit.prevent="submit">
     <div class="meetup-form__content">
       <fieldset class="meetup-form__section">
         <ui-form-group label="Название">
@@ -40,9 +40,6 @@
           class="meetup-form__agenda-item"
         />
       </template>
-      <!--
-      
-       -->
 
       <div class="meetup-form__append">
         <button class="meetup-form__append-button" type="button" data-test="addAgendaItem" @click="addMeetupAgendaItem">
@@ -54,7 +51,7 @@
     <div class="meetup-form__aside">
       <div class="meetup-form__aside-stick">
         <!-- data-test атрибуты используются для поиска нужного элемента в тестах, не удаляйте их -->
-        <ui-button variant="secondary" block class="meetup-form__aside-button" data-test="cancel" type="reset">
+        <ui-button variant="secondary" block class="meetup-form__aside-button" data-test="cancel" type="reset" @click="reset">
           Отмена
         </ui-button>
         <ui-button variant="primary" block class="meetup-form__aside-button" data-test="submit" type="submit">
@@ -116,12 +113,6 @@ export default {
         this.localMeetup = cloneDeep(value)
       }
     },
-    // localMeetup: {
-    //   deep: true,
-    //   handler(value) {
-    //    console.log(value)
-    //  }
-    // },
   },
 
   methods: {
