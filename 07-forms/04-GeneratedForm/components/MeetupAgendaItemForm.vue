@@ -1,32 +1,43 @@
 <template>
   <fieldset class="agenda-item-form">
-    <button type="button" class="agenda-item-form__remove-button">
+    <button type="button" class="agenda-item-form__remove-button" @click="handleRemoveButtonClick">
       <ui-icon icon="trash" />
     </button>
 
     <ui-form-group>
-      <ui-dropdown title="Тип" :options="$options.agendaItemTypeOptions" name="type" />
+      <ui-dropdown title="Тип" :options="$options.agendaItemTypeOptions" name="type" v-model="localAgendaItem.type" />
     </ui-form-group>
 
     <div class="agenda-item-form__row">
       <div class="agenda-item-form__col">
         <ui-form-group label="Начало">
-          <ui-input type="time" placeholder="00:00" name="startsAt" />
+          <ui-input type="time" 
+            placeholder="00:00" 
+            name="startsAt" 
+            :model-value="localAgendaItem.startsAt" 
+            @update:modelValue="handleStartsAtInput"/>
         </ui-form-group>
       </div>
       <div class="agenda-item-form__col">
         <ui-form-group label="Окончание">
-          <ui-input type="time" placeholder="00:00" name="endsAt" />
+          <ui-input type="time" 
+            placeholder="00:00" 
+            name="endsAt" 
+            :model-value="localAgendaItem.endsAt"
+            @update:modelValue="handleEndsAtInput"/>
         </ui-form-group>
       </div>
     </div>
 
-    <ui-form-group label="Заголовок">
-      <ui-input name="title" />
-    </ui-form-group>
-    <ui-form-group label="Описание">
-      <ui-input multiline name="description" />
-    </ui-form-group>
+    <template v-for="[key, value] of Object.entries(schema)" :key="key">
+      <ui-form-group :label="value.label">
+        <component :is="value.component" 
+          v-bind="value.props" 
+          :model-value="localAgendaItem[key]" 
+          @update:modelValue="localAgendaItem[key] = $event"/>
+      </ui-form-group>
+    </template>
+
   </fieldset>
 </template>
 
@@ -151,18 +162,78 @@ const agendaItemFormSchemas = {
   },
 };
 
+
+/* utils */
+
+const getMinutesCount = function(timeStr) {
+  const [ hours, minutes ] = timeStr.split(':').map(Number);
+  return hours * 60 + minutes;
+};
+
+const getTimeStr = function(minutesCount) {
+  const minutes = minutesCount % 60;
+  const hours = ((minutesCount - minutes) / 60) % 24;
+
+  return [ hours, minutes ].map(n => `0${n}`.slice(-2)).join(':');
+};
+
+const calcDuration = function(...args)  {
+  const [ startsAt, endsAt ] = args.map(getMinutesCount);
+  return (endsAt + 1440) - startsAt;
+}
+
+/* --- */
+
 export default {
   name: 'MeetupAgendaItemForm',
 
   components: { UiIcon, UiFormGroup, UiInput, UiDropdown },
 
   agendaItemTypeOptions,
-  agendaItemFormSchemas,
+  // agendaItemFormSchemas,
 
   props: {
     agendaItem: {
       type: Object,
       required: true,
+    },
+  },
+  
+  emits: [ 'update:agenda-item', 'remove' ],
+  
+  data() {
+    return {
+      localAgendaItem: { ...this.agendaItem },
+      duration: 0
+    }
+  },
+  
+  computed: {
+    schema() {
+      return agendaItemFormSchemas[this.localAgendaItem.type];
+    }
+  },
+  
+  watch: {
+    localAgendaItem: {
+      deep: true,
+      handler(value) {
+        this.$emit('update:agenda-item', { ...value });
+      },
+    },
+  },
+  
+  methods: {
+    handleStartsAtInput(value) {
+      this.localAgendaItem.startsAt = value; 
+      this.localAgendaItem.endsAt = getTimeStr(getMinutesCount(value) + this.duration);
+    },
+    handleEndsAtInput(value) {
+      this.localAgendaItem.endsAt = value; 
+      this.duration = calcDuration(this.localAgendaItem.startsAt, value);
+    },
+    handleRemoveButtonClick() {
+      this.$emit('remove');
     },
   },
 };
